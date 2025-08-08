@@ -5,41 +5,47 @@ import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import StockValueChart from '../components/charts/StockValueChart';
 import CategoryPieChart from '../components/charts/CategoryPieChart';
-import { mockDashboardStats, mockStockItems, mockStockMovements } from '../data/mockData';
+import { useStock } from '../contexts/StockContext';
 
 const Dashboard: React.FC = () => {
+  const { stockItems, stockMovements } = useStock();
+
+  // Calculate dashboard stats from current data
+  const totalItems = stockItems.length;
+  const totalValue = stockItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  const lowStockItems = stockItems.filter(item => item.quantity < item.minStock);
+  const recentMovements = stockMovements.length;
+
   const stats = [
     {
       name: 'Total Items',
-      value: mockDashboardStats.totalItems,
+      value: totalItems,
       icon: Package,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100 dark:bg-blue-900',
     },
     {
       name: 'Total Value',
-      value: `$${mockDashboardStats.totalValue.toLocaleString()}`,
+      value: `$${totalValue.toLocaleString()}`,
       icon: DollarSign,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900',
     },
     {
       name: 'Low Stock Items',
-      value: mockDashboardStats.lowStockItems,
+      value: lowStockItems.length,
       icon: AlertTriangle,
       color: 'text-red-600',
       bgColor: 'bg-red-100 dark:bg-red-900',
     },
     {
       name: 'Recent Movements',
-      value: mockDashboardStats.recentMovements,
+      value: recentMovements,
       icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100 dark:bg-purple-900',
     },
   ];
-
-  const lowStockItems = mockStockItems.filter(item => item.quantity < item.minStock);
 
   return (
     <div className="space-y-8">
@@ -124,7 +130,7 @@ const Dashboard: React.FC = () => {
             Recent Activity
           </h3>
           <div className="space-y-4">
-            {mockStockMovements.slice(0, 5).map((movement) => (
+            {stockMovements.slice(0, 5).map((movement) => (
               <div key={movement.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{movement.itemName}</p>

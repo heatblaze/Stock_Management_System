@@ -4,18 +4,19 @@ import { Search, Filter, ArrowUpDown, Eye, Edit, Trash2 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { mockStockItems } from '../data/mockData';
+import { useStock } from '../contexts/StockContext';
 import { StockItem } from '../types';
 
 const Inventory: React.FC = () => {
+  const { stockItems } = useStock();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<keyof StockItem>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterCategory, setFilterCategory] = useState('');
 
-  const categories = [...new Set(mockStockItems.map(item => item.category))];
+  const categories = [...new Set(stockItems.map(item => item.category))];
 
-  const filteredItems = mockStockItems
+  const filteredItems = stockItems
     .filter(item => 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.sku.toLowerCase().includes(searchTerm.toLowerCase())

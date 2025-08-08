@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Save, X } from 'lucide-react';
+import { Save, X, CheckCircle } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import { useStock } from '../contexts/StockContext';
 
 const AddStock: React.FC = () => {
+  const navigate = useNavigate();
+  const { addStockItem } = useStock();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -24,10 +31,48 @@ const AddStock: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+    setIsSubmitting(true);
+
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.sku || !formData.quantity || !formData.price || !formData.category || !formData.supplier) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      // Create the stock item
+      const stockItem = {
+        name: formData.name,
+        sku: formData.sku,
+        quantity: parseInt(formData.quantity),
+        price: parseFloat(formData.price),
+        category: formData.category,
+        supplier: formData.supplier,
+        minStock: formData.minStock ? parseInt(formData.minStock) : 10,
+      };
+
+      addStockItem(stockItem);
+
+      // Show success message
+      setShowSuccess(true);
+      
+      // Reset form
+      handleReset();
+
+      // Hide success message and redirect after 2 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+        navigate('/inventory');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error adding stock item:', error);
+      alert('Error adding stock item. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -55,6 +100,22 @@ const AddStock: React.FC = () => {
           Add a new product to your inventory
         </p>
       </motion.div>
+
+      {/* Success Message */}
+      {showSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6"
+        >
+          <div className="flex items-center">
+            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+            <span className="text-green-800 dark:text-green-200 font-medium">
+              Stock item added successfully! Redirecting to inventory...
+            </span>
+          </div>
+        </motion.div>
+      )}
 
       <Card className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -210,13 +271,14 @@ const AddStock: React.FC = () => {
               type="button"
               variant="outline"
               onClick={handleReset}
+              disabled={isSubmitting}
             >
               <X className="w-4 h-4 mr-2" />
               Reset
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={isSubmitting}>
               <Save className="w-4 h-4 mr-2" />
-              Save Product
+              {isSubmitting ? 'Saving...' : 'Save Product'}
             </Button>
           </div>
         </form>

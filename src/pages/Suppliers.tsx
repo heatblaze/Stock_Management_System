@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Package, Plus } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockSuppliers } from '../data/mockData';
+import { useStock } from '../contexts/StockContext';
 
 const Suppliers: React.FC = () => {
+  const { suppliers } = useStock();
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -26,7 +28,7 @@ const Suppliers: React.FC = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockSuppliers.map((supplier, index) => (
+        {suppliers.map((supplier, index) => (
           <motion.div
             key={supplier.id}
             initial={{ opacity: 0, y: 20 }}

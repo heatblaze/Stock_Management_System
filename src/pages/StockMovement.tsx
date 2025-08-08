@@ -4,13 +4,14 @@ import { Calendar, Filter, Download } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { mockStockMovements } from '../data/mockData';
+import { useStock } from '../contexts/StockContext';
 
 const StockMovement: React.FC = () => {
+  const { stockMovements } = useStock();
   const [filterType, setFilterType] = useState<'all' | 'in' | 'out'>('all');
   const [dateRange, setDateRange] = useState('7days');
 
-  const filteredMovements = mockStockMovements.filter(movement => 
+  const filteredMovements = stockMovements.filter(movement => 
     filterType === 'all' || movement.type === filterType
   );
 
